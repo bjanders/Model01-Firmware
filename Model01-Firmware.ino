@@ -42,7 +42,7 @@
 #include "Kaleidoscope-LEDEffect-Breathe.h"
 
 // Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
-#include "Kaleidoscope-LEDEffect-Chase.h"
+//#include "Kaleidoscope-LEDEffect-Chase.h"
 
 // Support for LED modes that pulse the keyboard's LED in a rainbow pattern
 #include "Kaleidoscope-LEDEffect-Rainbow.h"
@@ -51,10 +51,12 @@
 #include "Kaleidoscope-LED-Stalker.h"
 
 // Support for an LED mode that prints the keys you press in letters 4px high
-#include "Kaleidoscope-LED-AlphaSquare.h"
+//#include "Kaleidoscope-LED-AlphaSquare.h"
 
 // Support for Keyboardio's internal keyboard testing mode
 #include "Kaleidoscope-Model01-TestMode.h"
+
+#include "Kaleidoscope-DualUse.h"
 
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
@@ -117,7 +119,7 @@ enum { MACRO_VERSION_INFO,
   * the numbers 0, 1 and 2.
   */
 
-enum { QWERTY, FUNCTION, NUMPAD }; // layers
+enum { QWERTY, FUNCTION, NUMPAD, PROGPAD }; // layers
 
 /* This comment temporarily turns off astyle's indent enforcement
  *   so we can make the keymaps actually resemble the physical key layout better
@@ -127,41 +129,41 @@ enum { QWERTY, FUNCTION, NUMPAD }; // layers
 const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [QWERTY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
-   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
-   Key_LeftControl, Key_Backspace, Key_LeftShift, Key_LeftGui,
+  (___, Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
+   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Backspace,
+   ShiftToLayer(PROGPAD), Key_A, Key_S, Key_D, Key_F, Key_G, /**/
+   Key_Tab, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
+   Key_LeftControl, Key_Enter, Key_LeftShift, Key_LeftGui,
    ShiftToLayer(FUNCTION),
  
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         Key_KeypadNumLock,
-   Key_Delete,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
-                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
-   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_Enter, Key_RightShift, Key_Spacebar, Key_RightControl,
+   M(MACRO_ANY), Key_6, Key_7, Key_8, Key_9, Key_0,Key_KeypadNumLock,
+   Key_Delete, Key_Y, Key_U, Key_I, Key_O, Key_P, Key_Equals,
+   /**/ Key_H, Key_J, Key_K, Key_L, Key_Semicolon, Key_Quote,
+   Key_RightAlt, Key_N, Key_M, Key_Comma, Key_Period, Key_Slash, Key_Minus,
+   Key_LeftAlt, Key_RightShift, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
-
+  
   [FUNCTION] =  KEYMAP_STACKED
-  (___,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           Key_F12,
-   Key_NonUsBackslashAndPipe, Key_Escape,  ___,  Consumer_Mute, Consumer_VolumeDecrement,  Consumer_VolumeIncrement, ___,
-   Key_Home, ___,              ___,         ___,        Key_Tab,       ___,
-   Key_End,  Key_PrintScreen,  Key_Insert,  Consumer_ScanPreviousTrack, Consumer_PlaySlashPause,  Consumer_ScanNextTrack, ___,
-   ___, Key_Delete, ___, ___,
+  (___, Key_F1, Key_F2, Key_F3, Key_F4, Key_F5, Key_F12,
+   Key_NonUsBackslashAndPipe, Key_Escape, ___, Key_LeftCurlyBracket, Key_RightCurlyBracket, ___, Key_Delete,
+   ___, ___, ___, Key_LeftParen, Key_RightParen, ___, /**/
+   ___, Key_PrintScreen, ___, Key_LeftBracket, Key_RightBracket, ___, ___,
+   ___, ___, ___, ___,
    ___,
 
-   ___, Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
-   ___,    ___, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_International1,
-                               Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  Key_International3, Key_International2,
-   Key_PcApplication,          ___,               ___, ___, ___,             Key_Backslash,    Key_Pipe,
-   Key_LeftAlt, ___, Key_Enter, ___,
+   ___, Key_F6, Key_F7, Key_F8, Key_F9, Key_F10, Key_F11,
+   Key_Insert, Key_PageUp, Key_Home, Key_UpArrow, Key_End, ___, Key_International1,
+   /**/ Key_PageDown, Key_LeftArrow, Key_DownArrow, Key_RightArrow, Key_International3, Key_International2,
+   Key_PcApplication, ___, Key_Minus, Key_Underscore, Key_Pipe, Key_Backslash, Key_Pipe,
+   ___, ___, Key_Tab, ___,
    ___),
 
 
   [NUMPAD] =  KEYMAP_STACKED
   (___, ___, ___, ___, ___, ___, ___,
    ___, ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___, ___,
+   ___, ___, Consumer_Mute, Consumer_VolumeDecrement,  Consumer_VolumeIncrement, ___, /**/
+   ___, ___, Consumer_ScanPreviousTrack, Consumer_ScanNextTrack, Consumer_PlaySlashPause, ___, ___,
    ___, ___, ___, ___,
    ___,
 
@@ -169,6 +171,21 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
    ___,                    ___, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      ___,
                            ___, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         Key_Quote,
    ___,                    ___, Key_Keypad0, Key_KeypadDot, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
+   ___, ___, ___, ___,
+   ___),
+   
+  [PROGPAD] =  KEYMAP_STACKED
+  (___, ___, ___, ___, ___, ___, ___,
+   ___, ___, ___, ___, ___, ___, ___,
+   ___, ___, Consumer_Mute, Consumer_VolumeDecrement,  Consumer_VolumeIncrement, ___, /**/
+   ___, ___, Consumer_ScanPreviousTrack, Consumer_ScanNextTrack, Consumer_PlaySlashPause, ___, ___,
+   ___, ___, ___, ___,
+   ___,
+
+   M(MACRO_VERSION_INFO),  ___, Key_7, Key_8,   Key_9,        Key_KeypadSubtract, ___,
+   ___,                    ___, Key_4, Key_5,   Key_6,        Key_KeypadAdd,      ___,
+                           ___, Key_1, Key_2,   Key_3,        Key_Equals,         Key_Quote,
+   ___,                    ___, Key_0, Key_Comma, Key_Period, Key_KeypadDivide,   Key_Enter,
    ___, ___, ___, ___,
    ___)
 };
@@ -274,6 +291,16 @@ void setup() {
     // We start with the LED effect that turns off all the LEDs.
     &LEDOff,
 
+    // The chase effect follows the adventure of a blue pixel which chases a red pixel across
+    // your keyboard. Spoiler: the blue pixel never catches the red pixel
+   // &LEDChaseEffect,
+
+    // These static effects turn your keyboard's LEDs a variety of colors
+    &solidGreen, &solidBlue, &solidIndigo, &solidViolet, &solidRed, &solidOrange, &solidYellow, 
+
+    // The breathe effect slowly pulses all of the LEDs on your keyboard
+    &LEDBreatheEffect,
+
     // The rainbow effect changes the color of all of the keyboard's keys at the same time
     // running through all the colors of the rainbow.
     &LEDRainbowEffect,
@@ -281,16 +308,6 @@ void setup() {
     // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
     // and slowly moves the rainbow across your keyboard
     &LEDRainbowWaveEffect,
-
-    // The chase effect follows the adventure of a blue pixel which chases a red pixel across
-    // your keyboard. Spoiler: the blue pixel never catches the red pixel
-   // &LEDChaseEffect,
-
-    // These static effects turn your keyboard's LEDs a variety of colors
-    &solidRed, &solidOrange, &solidYellow, &solidGreen, &solidBlue, &solidIndigo, &solidViolet,
-
-    // The breathe effect slowly pulses all of the LEDs on your keyboard
-    &LEDBreatheEffect,
 
     // The AlphaSquare effect prints each character you type, using your
     // keyboard's LEDs as a display
@@ -306,8 +323,10 @@ void setup() {
     // The macros plugin adds support for macros
     &Macros,
 
+    &DualUse
+
     // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-    &MouseKeys
+    //&MouseKeys
   );
 
   // While we hope to improve this in the future, the NumLock plugin
@@ -315,7 +334,7 @@ void setup() {
   NumLock.numPadLayer = NUMPAD;
 
   // We configure the AlphaSquare effect to use RED letters
-  AlphaSquare.color = { 255, 0, 0 };
+  //AlphaSquare.color = { 255, 0, 0 };
 
   // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
   // This draws more than 500mA, but looks much nicer than a dimmer effect
