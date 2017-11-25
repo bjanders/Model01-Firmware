@@ -54,9 +54,11 @@
 //#include "Kaleidoscope-LED-AlphaSquare.h"
 
 // Support for Keyboardio's internal keyboard testing mode
-#include "Kaleidoscope-Model01-TestMode.h"
+//#include "Kaleidoscope-Model01-TestMode.h"
 
-#include "Kaleidoscope-DualUse.h"
+//#include <Kaleidoscope-DualUse.h>
+#include <Kaleidoscope-Heatmap.h>
+#include <Kaleidoscope-SpaceCadet.h>
 
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
@@ -131,8 +133,8 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
   [QWERTY] = KEYMAP_STACKED
   (___, Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
    Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Backspace,
-   ShiftToLayer(PROGPAD), Key_A, Key_S, Key_D, Key_F, Key_G, /**/
-   Key_Tab, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
+   Key_Tab, Key_A, Key_S, Key_D, Key_F, Key_G, /**/
+   LCTRL(Key_B), Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
    Key_LeftControl, Key_Enter, Key_LeftShift, Key_LeftGui,
    ShiftToLayer(FUNCTION),
  
@@ -145,9 +147,9 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
   
   [FUNCTION] =  KEYMAP_STACKED
   (___, Key_F1, Key_F2, Key_F3, Key_F4, Key_F5, Key_F12,
-   Key_NonUsBackslashAndPipe, Key_Escape, ___, Key_LeftCurlyBracket, Key_RightCurlyBracket, ___, Key_Delete,
-   ___, ___, ___, Key_LeftParen, Key_RightParen, ___, /**/
-   ___, Key_PrintScreen, ___, Key_LeftBracket, Key_RightBracket, ___, ___,
+   Key_NonUsBackslashAndPipe, ___, ___, Key_LeftCurlyBracket, Key_RightCurlyBracket, ___, Key_Delete,
+   ___, Key_Escape, Key_Tab, Key_mouseBtnR, Key_mouseBtnL, ___, /**/
+   ShiftToLayer(PROGPAD), Key_PrintScreen, ___, Key_LeftBracket, Key_RightBracket, ___, ___,
    ___, ___, ___, ___,
    ___,
 
@@ -155,7 +157,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
    Key_Insert, Key_PageUp, Key_Home, Key_UpArrow, Key_End, ___, Key_International1,
    /**/ Key_PageDown, Key_LeftArrow, Key_DownArrow, Key_RightArrow, Key_International3, Key_International2,
    Key_PcApplication, ___, Key_Minus, Key_Underscore, Key_Pipe, Key_Backslash, Key_Pipe,
-   ___, ___, Key_Tab, ___,
+   ___, ___, Key_Backspace, ___,
    ___),
 
 
@@ -182,10 +184,10 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
    ___, ___, ___, ___,
    ___,
 
-   M(MACRO_VERSION_INFO),  ___, Key_7, Key_8,   Key_9,        Key_KeypadSubtract, ___,
-   ___,                    ___, Key_4, Key_5,   Key_6,        Key_KeypadAdd,      ___,
-                           ___, Key_1, Key_2,   Key_3,        Key_Equals,         Key_Quote,
-   ___,                    ___, Key_0, Key_Comma, Key_Period, Key_KeypadDivide,   Key_Enter,
+   Consumer_VolumeIncrement, ___, Key_7, Key_8,   Key_9,        Key_KeypadSubtract, ___,
+   Consumer_VolumeDecrement, ___, Key_4, Key_5,   Key_6,        Key_KeypadAdd,      ___,
+   /**/ ___, Key_1, Key_2,   Key_3,        Key_Equals,         Key_Quote,
+   Consumer_Mute,                    ___, Key_0, Key_Period, Key_Period, Key_KeypadDivide,   Key_Enter,
    ___, ___, ___, ___,
    ___)
 };
@@ -280,10 +282,10 @@ void setup() {
   // added in the order they're listed here.
   Kaleidoscope.use(
     // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
-    &BootGreetingEffect,
+    //&BootGreetingEffect,
 
     // The hardware test mode, which can be invoked by tapping Prog, LED and the left Fn button at the same time.
-    &TestMode,
+    //&TestMode,
 
     // LEDControl provides support for other LED modes
     &LEDControl,
@@ -323,12 +325,31 @@ void setup() {
     // The macros plugin adds support for macros
     &Macros,
 
-    &DualUse
+    &HeatmapEffect,
+
+    &SpaceCadet,
+
+    //&DualUse
 
     // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-    //&MouseKeys
+    &MouseKeys
   );
-
+  //Set the keymap with a 250ms timeout per-key
+  //Setting is {KeyThatWasPressed, AlternativeKeyToSend, TimeoutInMS}
+  //Note: must end with the SPACECADET_MAP_END delimiter
+  static kaleidoscope::SpaceCadet::KeyBinding spacecadetmap[] = {
+    {Key_LeftShift, Key_LeftParen, 250},
+    {Key_RightShift, Key_RightParen, 250},
+    //{Key_LeftGui, Key_LeftCurlyBracket, 250},
+    //{Key_RightAlt, Key_RightCurlyBracket, 250},
+    //{Key_LeftAlt, Key_RightCurlyBracket, 250},
+    {Key_LeftControl, Key_Tab, 250},
+    {Key_RightControl, Key_Tab, 250},
+    SPACECADET_MAP_END
+  };
+  //Set the map.
+  SpaceCadet.map = spacecadetmap;
+  
   // While we hope to improve this in the future, the NumLock plugin
   // needs to be explicitly told which keymap layer is your numpad layer
   NumLock.numPadLayer = NUMPAD;
