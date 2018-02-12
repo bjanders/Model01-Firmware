@@ -33,22 +33,22 @@
 
 // Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
 // when the keyboard is connected to a computer (or that computer is powered on)
-#include "Kaleidoscope-LEDEffect-BootGreeting.h"
+//#include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
 // Support for LED modes that set all LEDs to a single color
 #include "Kaleidoscope-LEDEffect-SolidColor.h"
 
 // Support for an LED mode that makes all the LEDs 'breathe'
-#include "Kaleidoscope-LEDEffect-Breathe.h"
+//#include "Kaleidoscope-LEDEffect-Breathe.h"
 
 // Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
 //#include "Kaleidoscope-LEDEffect-Chase.h"
 
 // Support for LED modes that pulse the keyboard's LED in a rainbow pattern
-#include "Kaleidoscope-LEDEffect-Rainbow.h"
+//#include "Kaleidoscope-LEDEffect-Rainbow.h"
 
 // Support for an LED mode that lights up the keys as you press them
-#include "Kaleidoscope-LED-Stalker.h"
+//#include "Kaleidoscope-LED-Stalker.h"
 
 // Support for an LED mode that prints the keys you press in letters 4px high
 //#include "Kaleidoscope-LED-AlphaSquare.h"
@@ -56,12 +56,10 @@
 // Support for Keyboardio's internal keyboard testing mode
 //#include "Kaleidoscope-Model01-TestMode.h"
 
-//#include <Kaleidoscope-DualUse.h>
-#include <Kaleidoscope-Heatmap.h>
-//#include <Kaleidoscope-SpaceCadet.h>
-//#include <Kaleidoscope-Focus.h>
+// Support for host power management (suspend & wakeup)
+#include "Kaleidoscope-HostPowerManagement.h"
 
-
+#include "Kaleidoscope-Qukeys.h"
 
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
@@ -125,7 +123,32 @@ enum { MACRO_VERSION_INFO,
   *
   */
 
-enum { QWERTY, NUMPAD, FUNCTION, PROGPAD }; // layers
+#define Key_ADiaeresis RALT(Key_Q)
+#define Key_ARing RALT(Key_W)
+#define Key_Ampersand LSHIFT(Key_7)
+#define Key_Asterisk LSHIFT(Key_8)
+#define Key_At LSHIFT(Key_2)
+#define Key_Caret LSHIFT(Key_6)
+#define Key_Colon LSHIFT(Key_Semicolon)
+#define Key_Dollar LSHIFT(Key_4)
+#define Key_DoubleQuote LSHIFT(Key_Quote)
+#define Key_EAcute RALT(Key_E)
+#define Key_Exclamation LSHIFT(Key_1)
+#define Key_GreaterThan LSHIFT(Key_Period)
+#define Key_LeftDoubleQuoteMark LSHIFT(RALT(Key_LeftBracket))
+#define Key_LeftSingleQuoteMark RALT(Key_9)
+#define Key_LessThan LSHIFT(Key_Comma)
+#define Key_ODiaeresis RALT(Key_P)
+#define Key_Percent LSHIFT(Key_5)
+#define Key_Plus LSHIFT(Key_Equals)
+#define Key_Pound LSHIFT(Key_3)
+#define Key_Question LSHIFT(Key_Slash)
+#define Key_RightDoubleQuoteMark LSHIFT(RALT(Key_RightBracket))
+#define Key_RightSingleQuoteMark RALT(Key_0)
+#define Key_Tilde LSHIFT(Key_Backtick)
+#define Key_Underscore LSHIFT(Key_Minus)
+
+enum { QWERTY, NUMPAD, FUNCTION, GAMING }; // layers
 
 /* This comment temporarily turns off astyle's indent enforcement
  *   so we can make the keymaps actually resemble the physical key layout better
@@ -135,82 +158,69 @@ enum { QWERTY, NUMPAD, FUNCTION, PROGPAD }; // layers
 const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [QWERTY] = KEYMAP_STACKED
+
   (___, Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Backspace,
-   Key_Tab, Key_A, Key_S, Key_D, Key_F, Key_G, /**/
-   LCTRL(Key_B), Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
-   //Key_LeftShift, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
-   Key_LeftControl, Key_Enter, Key_LeftShift, Key_LeftGui,
+   Key_Tab, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Delete,
+   Key_LeftShift, Key_A, Key_S, Key_D, Key_F, Key_G, /**/
+   Key_LeftControl, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftAlt,
+   Key_LeftShift, ShiftToLayer(FUNCTION), Key_Backspace, Key_LeftControl,
    ShiftToLayer(FUNCTION),
- 
-   M(MACRO_ANY), Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
-   Key_Delete, Key_Y, Key_U, Key_I, Key_O, Key_P, Key_Equals,
-   /**/ Key_H, Key_J, Key_K, Key_L, Key_Semicolon, Key_Quote,
-   Key_RightAlt, Key_N, Key_M, Key_Comma, Key_Period, Key_Slash, Key_Minus,
-   //Key_RightAlt, Key_N, Key_M, Key_Comma, Key_Period, Key_Slash, Key_RightShift,
-   Key_LeftAlt, Key_RightShift, Key_Spacebar, Key_RightControl,
+   
+   LockLayer(NUMPAD), Key_6, Key_7, Key_8, Key_9, Key_0, Key_Minus,
+   Key_Insert, Key_Y, Key_U, Key_I, Key_O, Key_P, Key_Equals,
+   /**/ Key_H, Key_J, Key_K, Key_L, Key_Semicolon, Key_RightShift,
+   Key_LeftGui, Key_N, Key_M, Key_Comma, Key_Period, Key_Slash, Key_RightControl,
+   Key_RightControl, Key_Enter, Key_Spacebar, Key_RightShift,
    ShiftToLayer(FUNCTION)),
-  
+
 
   [NUMPAD] =  KEYMAP_STACKED
+  (___, ___, ___, ___, ___, ___, ___,
+   ___, ___, ___, Key_UpArrow, ___, ___, ___,
+   ___, ___, Key_LeftArrow, Key_DownArrow, Key_RightArrow, ___, /**/
+   ___, ___, ___, ___, ___, ___, ___,
+   ___, ___, ___, ___,
+   ___,
+   
+   ___,                    ___, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadSubtract, ___,
+   ___,                    ___, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      ___,
+                           ___, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         Key_Quote,
+   ___,                    ___, Key_Keypad0, Key_KeypadDot, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
+   ___, ___, ___, ___,
+   ___),
+
+   
+  [FUNCTION] =  KEYMAP_STACKED
+  (___, Key_F1, Key_F2, Key_F3, Key_F4, Key_F5, Key_F12,
+   Key_Tilde, Key_Escape, Key_Home, Key_UpArrow, Key_End, Key_PageUp, Key_Delete,
+   ___, Key_Tab, Key_LeftArrow, Key_DownArrow, Key_RightArrow, Key_PageDown, /**/
+   ___, Key_NonUsBackslashAndPipe, Key_PrintScreen, Key_mouseBtnR, Key_mouseBtnL, ___, ___,
+   ___, ___, ___, ___,
+   ___,
+//Key_NonUsBackslashAndPipe
+
+   ___, Key_F6, Key_F7, Key_F8, Key_F9, Key_F10, Key_F11,
+   Key_Insert, Key_Backtick, Key_LeftCurlyBracket, Key_RightCurlyBracket, Key_LeftBracket, Key_RightBracket, Key_International1,
+   /**/ Key_Backslash, Key_LeftParen, Key_RightParen, Key_Minus, Key_International3, Key_International2,
+   Key_PcApplication, Key_Quote, Key_Quote, Key_DoubleQuote, Key_Underscore, Key_Pipe, ___,
+   ___, ___, Key_Backspace, ___,
+   ___),
+
+
+  [GAMING] =  KEYMAP_STACKED
   (___, ___, ___, ___, ___, ___, ___,
    Key_Escape, Key_Backtick, Key_Q, Key_W, Key_E, Key_R, ___,
    ___, Key_LeftShift, Key_A, Key_S, Key_D, Key_F, /**/
    ___, ___, Key_Z, Key_X, Key_C, ___, ___,
    Key_LeftControl, Key_Spacebar, Key_V, ___,
    Key_LeftShift,
-/*
-  [NUMPAD] =  KEYMAP_STACKED
-  (___, ___, ___, ___, ___, ___, ___,
+
    ___, ___, ___, ___, ___, ___, ___,
-   ___, ___, Consumer_Mute, Consumer_VolumeDecrement,  Consumer_VolumeIncrement, ___, 
-   ___, ___, Consumer_ScanPreviousTrack, Consumer_ScanNextTrack, Consumer_PlaySlashPause, ___, ___,
-   ___, ___, ___, ___,
-   ___,
-*/
-   M(MACRO_VERSION_INFO),  ___, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadSubtract, ___,
-   ___,                    ___, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      ___,
-                           ___, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         Key_Quote,
-   ___,                    ___, Key_Keypad0, Key_KeypadDot, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
-   ___, ___, ___, ___,
-   ___),
-   
-  [FUNCTION] =  KEYMAP_STACKED
-  (___, Key_F1, Key_F2, Key_F3, Key_F4, Key_F5, Key_F12,
-   Key_NonUsBackslashAndPipe, ___, Key_Home, Key_UpArrow, Key_End, Key_PageUp, Key_Delete,
-   ___, Key_Escape, Key_LeftArrow, Key_DownArrow, Key_RightArrow, Key_PageDown, /**/
-   ShiftToLayer(PROGPAD), Key_PrintScreen, ___, Key_mouseBtnR, Key_mouseBtnL, ___, ___,
-   ___, ___, ___, ___,
-   ___,
-
-   ___, Key_F6, Key_F7, Key_F8, Key_F9, Key_F10, Key_F11,
-   Key_Insert, ___, Key_LeftCurlyBracket, Key_RightCurlyBracket, Key_LeftBracket, Key_RightBracket, Key_International1,
-   /**/ ___, Key_LeftParen, Key_RightParen, Key_Minus, Key_International3, Key_International2,
-   Key_PcApplication, ___, Key_Minus, Key_Underscore, Key_Pipe, Key_Backslash, Key_Pipe,
-   ___, ___, Key_Backspace, ___,
-   ___),
-
-
-//   Key_NonUsBackslashAndPipe, Key_PageUp, Key_Home, Key_LeftCurlyBracket, Key_RightCurlyBracket, ___, Key_Delete,
-//   ___, Key_Escape, Key_Tab, Key_mouseBtnR, Key_mouseBtnL, ___, /**/
-//   ShiftToLayer(PROGPAD), Key_PrintScreen, ___, Key_LeftBracket, Key_RightBracket, ___, ___,
-
-   
-  [PROGPAD] =  KEYMAP_STACKED
-  (___, ___, ___, ___, ___, ___, ___,
    ___, ___, ___, ___, ___, ___, ___,
-   ___, ___, Consumer_Mute, Consumer_VolumeDecrement,  Consumer_VolumeIncrement, ___, /**/
-   ___, ___, Consumer_ScanPreviousTrack, Consumer_ScanNextTrack, Consumer_PlaySlashPause, ___, ___,
-   ___, ___, ___, ___,
-   ___,
-
-   Consumer_VolumeIncrement, ___, Key_7, Key_8,   Key_9,        Key_KeypadSubtract, ___,
-   Consumer_VolumeDecrement, ___, Key_4, Key_5,   Key_6,        Key_KeypadAdd,      ___,
-   /**/ ___, Key_1, Key_2,   Key_3,        Key_Equals,         Key_Quote,
-   Consumer_Mute,                    ___, Key_0, Key_Period, Key_Period, Key_KeypadDivide,   Key_Enter,
+   ___, ___, ___, ___, ___, ___, /**/
+   ___, ___, ___, ___, ___, ___, ___,
    ___, ___, ___, ___,
    ___)
-
 };
 
 /* Re-enable astyle's indent enforcement */
@@ -272,31 +282,6 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   return MACRO_NONE;
 }
 
-#define GREEN CRGB(0, 160, 0)
-#define RED CRGB(160, 0, 0)
-#define BLUE CRGB(0, 70, 130)
-
-
-static void gamingColor(bool post_clear) {
-  if (!post_clear || !Layer.isOn(PROGPAD))
-    return;
-
-  LEDControl.setCrgbAt(1, 3, GREEN); // E
-  LEDControl.setCrgbAt(2, 2, GREEN); // S
-  LEDControl.setCrgbAt(2, 3, GREEN); // D
-  LEDControl.setCrgbAt(2, 4, GREEN); // F
-  LEDControl.setCrgbAt(0, 7, GREEN); // ctrl 
-  LEDControl.setCrgbAt(1, 7, GREEN); // bksp
-  LEDControl.setCrgbAt(1, 2, RED); // W
-  LEDControl.setCrgbAt(1, 4, RED); // R
-  LEDControl.setCrgbAt(2, 1, RED); // A
-  LEDControl.setCrgbAt(2, 7, RED); // shift
-  LEDControl.setCrgbAt(3, 6, RED); // fn
-  LEDControl.setCrgbAt(3, 2, BLUE); // X
-  LEDControl.setCrgbAt(3, 3, BLUE); // C
-  LEDControl.setCrgbAt(3, 4, BLUE); // V
-  LEDControl.setCrgbAt(2, 5, BLUE); // G    
-}
 
 
 // These 'solid' color effect definitions define a rainbow of
@@ -312,7 +297,32 @@ static kaleidoscope::LEDSolidColor solidBlue(0, 70, 130);
 static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
 static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
 
+/** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
+ * and turns them back on when it wakes up.
+ */
+void toggleLedsOnSuspendResume(kaleidoscope::HostPowerManagement::Event event) {
+  switch (event) {
+  case kaleidoscope::HostPowerManagement::Suspend:
+    LEDControl.paused = true;
+    LEDControl.set_all_leds_to({0, 0, 0});
+    LEDControl.syncLeds();
+    break;
+  case kaleidoscope::HostPowerManagement::Resume:
+    LEDControl.paused = false;
+    LEDControl.refreshAll();
+    break;
+  case kaleidoscope::HostPowerManagement::Sleep:
+    break;
+  }
+}
 
+/** hostPowerManagementEventHandler dispatches power management events (suspend,
+ * resume, and sleep) to other functions that perform action based on these
+ * events.
+ */
+void hostPowerManagementEventHandler(kaleidoscope::HostPowerManagement::Event event) {
+  toggleLedsOnSuspendResume(event);
+}
 
 /** The 'setup' function is one of the two standard Arduino sketch functions.
   * It's called when your keyboard first powers up. This is where you set up
@@ -320,16 +330,17 @@ static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
   */
 
 void setup() {
-
-  //Serial.begin(9600);
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
+
   // Next, tell Kaleidoscope which plugins you want to use.
   // The order can be important. For example, LED effects are
   // added in the order they're listed here.
   Kaleidoscope.use(
     // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
-    //&BootGreetingEffect,
+    //&BootGnnnreetinngEnffect,
+   
+    //&Qukeys,
 
     // The hardware test mode, which can be invoked by tapping Prog, LED and the left Fn button at the same time.
     //&TestMode,
@@ -340,36 +351,31 @@ void setup() {
     // We start with the LED effect that turns off all the LEDs.
     &LEDOff,
 
-    // The chase effect follows the adventure of a blue pixel which chases a red pixel across
-    // your keyboard. Spoiler: the blue pixel never catches the red pixel
-   // &LEDChaseEffect,
-
-    // These static effects turn your keyboard's LEDs a variety of colors
-    //&solidGreen,
-    &solidBlue, 
-    //&solidIndigo, 
-    //&solidViolet, 
-    //&solidRed, 
-    //&solidOrange, 
-    //&solidYellow, 
-
-    // The breathe effect slowly pulses all of the LEDs on your keyboard
-    //&LEDBreatheEffect,
-
     // The rainbow effect changes the color of all of the keyboard's keys at the same time
     // running through all the colors of the rainbow.
-   // &LEDRainbowEffect,
+    //&LEDRainbowEffect,
 
     // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
     // and slowly moves the rainbow across your keyboard
-    &LEDRainbowWaveEffect,
+    //&LEDRainbowWaveEffect,
+
+    // The chase effect follows the adventure of a blue pixel which chases a red pixel across
+    // your keyboard. Spoiler: the blue pixel never catches the red pixel
+    //&LEDChaseEffect,
+
+    // These static effects turn your keyboard's LEDs a variety of colors
+    //&solidRed, &solidOrange, &solidYellow, &solidGreen, &solidBlue, &solidIndigo, &solidViolet,
+     &solidBlue,
+
+    // The breathe effect slowly pulses all of the LEDs on your keyboard
+    //&LEDBreatheEffect,
 
     // The AlphaSquare effect prints each character you type, using your
     // keyboard's LEDs as a display
     //&AlphaSquareEffect,
 
     // The stalker effect lights up the keys you've pressed recently
-    &StalkerEffect,
+    //&StalkerEffect,
 
     // The numpad plugin is responsible for lighting up the 'numpad' mode
     // with a custom LED effect
@@ -378,57 +384,35 @@ void setup() {
     // The macros plugin adds support for macros
     &Macros,
 
-    &HeatmapEffect,
-
-    //&SpaceCadet,
-
-    //&DualUse
-
     // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-    &MouseKeys
+    &MouseKeys,
 
-    //&Focus
+    // The HostPowerManagement plugin enables waking up the host from suspend,
+    // and allows us to turn LEDs off when it goes to sleep.
+    &HostPowerManagement
   );
 
-  Kaleidoscope.useLoopHook(gamingColor);
- 
- 
 
-  
-  //Set the keymap with a 250ms timeout per-key
-  //Setting is {KeyThatWasPressed, AlternativeKeyToSend, TimeoutInMS}
-  //Note: must end with the SPACECADET_MAP_END delimiter
-  //static kaleidoscope::SpaceCadet::KeyBinding spacecadetmap[] = {
-  //  {Key_LeftShift, Key_LeftParen, 250},
-  //  {Key_RightShift, Key_RightParen, 250},
-    //{Key_LeftGui, Key_LeftCurlyBracket, 250},
-    //{Key_RightAlt, Key_RightCurlyBracket, 250},
-    //{Key_LeftAlt, Key_RightCurlyBracket, 250},
-  //  {Key_LeftControl, Key_Tab, 250},
-  //  {Key_RightControl, Key_Tab, 250},
-  //  SPACECADET_MAP_END
- // };
-  //Set the map.
- // SpaceCadet.map = spacecadetmap;
-  
+  //Qukeys.setTimeout(1000);
   // While we hope to improve this in the future, the NumPad plugin
   // needs to be explicitly told which keymap layer is your numpad layer
   NumPad.numPadLayer = NUMPAD;
 
-
+  // We configure the AlphaSquare effect to use RED letters
+  //AlphaSquare.color = { 255, 0, 0 };
 
   // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
   // This draws more than 500mA, but looks much nicer than a dimmer effect
-  LEDRainbowEffect.brightness(150);
-  LEDRainbowWaveEffect.brightness(150);
+  //LEDRainbowEffect.brightness(150);
+  //LEDRainbowWaveEffect.brightness(150);
 
   // The LED Stalker mode has a few effects. The one we like is
   // called 'BlazingTrail'. For details on other options,
   // see https://github.com/keyboardio/Kaleidoscope-LED-Stalker
-  StalkerEffect.variant = STALKER(BlazingTrail);
+  //StalkerEffect.variant = STALKER(BlazingTrail);
 
-  //Focus.addHook(FOCUS_HOOK_HELP);
-  //Focus.addHook(FOCUS_HOOK_VERSION);
+  // We want the keyboard to be able to wake the host up from suspend.
+  HostPowerManagement.enableWakeup();
 
   // We want to make sure that the firmware starts with LED effects off
   // This avoids over-taxing devices that don't have a lot of power to share
